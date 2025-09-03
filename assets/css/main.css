@@ -2514,3 +2514,31 @@ section,
   color: #fff; /* Bílý text při hoveru */
   text-decoration: none;
 }
+
+.navmenu li:has(a.btn-green-fill) {
+  padding-top: 0;
+  padding-bottom: 0;
+  align-self: center; /* Pro jistotu tlačítko vertikálně vycentrujeme */
+}
+
+/* Krok 2: Mírně upravíme padding samotného tlačítka, aby perfektně zapadlo. */
+.navmenu a.btn-green-fill {
+  padding: 8px 25px; /* Tento padding teď bude finální a nebude se s ničím sčítat */
+  border-radius: 50px;
+  background: var(--accent-color);
+  color: #fff;
+  border: 2px solid var(--accent-color);
+  transition: all 0.3s ease;
+}
+
+/* Krok 3: Definujeme vzhled tlačítka při najetí myší. */
+.navmenu a.btn-green-fill:hover {
+  background: transparent;
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* Krok 4: Zajistíme, aby se na tlačítko neaplikovalo podtržení z menu. */
+.navmenu a.btn-green-fill:before {
+  display: none !important;
+}
