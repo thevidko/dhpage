@@ -2544,3 +2544,11 @@ section,
 .navmenu a.btn-green-fill:before {
   display: none !important;
 }
+
+  /* ================================================
+     Zajištění stejné šířky obrázků na mobilu
+     ================================================ */
+  .edukace-images img {
+    width: 100%;
+    height: auto; /* Zachová správný poměr stran */
+  }
