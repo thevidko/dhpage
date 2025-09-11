@@ -2536,8 +2536,8 @@ section,
 /* Krok 3: Definujeme vzhled tlačítka při najetí myší. */
 .navmenu a.btn-green-fill:hover {
   background: transparent;
-  color: var(--accent-color);
-  border-color: var(--accent-color);
+  color: var(--surface-color);
+  border-color: var(--surface-color);
 }
 
 /* Krok 4: Zajistíme, aby se na tlačítko neaplikovalo podtržení z menu. */

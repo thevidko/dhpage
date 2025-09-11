@@ -1,6 +1,25 @@
 {
     "prijimameNovePacienty": true,
-    "jeDovolena": false,
-    "dovolenáOd": "12.12.",
-    "dovolenáDo": "15.12."
+    "zobrazitOznameni": false,
+    "oznameniText": "DOVOLENÁ: V termínu od DD.MM. do DD.MM. neordinuji.",
+    "oteviraciDoba": {
+        "po": "14:30 - 18:30",
+        "ut": "Zavřeno",
+        "st": "Zavřeno",
+        "ct": "14:30 - 18:30",
+        "pa": "14:30 - 18:30",
+        "so": "8:00 - 12:00 a 13:00 - 17:00",
+        "ne": "8:00 - 12:00 a 13:00 - 17:00"
+    },
+    "cenik": {
+        "dospeli": {
+            "vstupni": "0 Kč",
+            "kontrolni": "? Kč"
+        },
+        "deti": {
+            "do6let": "? Kč",
+            "do15let": "? Kč",
+            "nanecisto": "? Kč"
+        }
+    }
 }

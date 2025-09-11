@@ -1,13 +1,10 @@
 <?php
 session_start();
 
-// Mock pass
 $spravne_heslo = "mock";
-
 $config_file = 'config.json';
 $zprava = '';
 
-// Zpracování přihlášení
 if (isset($_POST['heslo'])) {
     if ($_POST['heslo'] == $spravne_heslo) {
         $_SESSION['loggedin'] = true;
@@ -16,31 +13,31 @@ if (isset($_POST['heslo'])) {
     }
 }
 
-// Zpracování odhlášení
 if (isset($_GET['logout'])) {
     session_destroy();
     header('Location: admin.php');
     exit;
 }
 
-// Zpracování uložení formuláře
-if ($_SESSION['loggedin'] && isset($_POST['ulozit'])) {
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] && isset($_POST['ulozit'])) {
     $data = [
         'prijimameNovePacienty' => isset($_POST['prijimame']),
-        'jeDovolena' => isset($_POST['dovolena']),
-        'dovolenáOd' => htmlspecialchars($_POST['dovolenaOd']),
-        'dovolenáDo' => htmlspecialchars($_POST['dovolenaDo'])
+        'zobrazitOznameni' => isset($_POST['zobrazitOznameni']),
+        'oznameniText' => htmlspecialchars($_POST['oznameniText']), // Změna zde
+        'oteviraciDoba' => array_map('htmlspecialchars', $_POST['oteviraciDoba']),
+        'cenik' => [
+            'dospeli' => array_map('htmlspecialchars', $_POST['cenik']['dospeli']),
+            'deti' => array_map('htmlspecialchars', $_POST['cenik']['deti'])
+        ]
     ];
 
-    // Uloží data do JSON souboru s formátováním pro lepší čitelnost
     if (file_put_contents($config_file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
         $zprava = '<p style="color: green;">Nastavení bylo úspěšně uloženo!</p>';
     } else {
-        $zprava = '<p style="color: red;">Nepodařilo se uložit nastavení. Zkontrolujte oprávnění souboru config.json.</p>';
+        $zprava = '<p style="color: red;">Nepodařilo se uložit nastavení!</p>';
     }
 }
 
-// Načtení aktuální konfigurace pro zobrazení ve formuláři
 $config = json_decode(file_get_contents($config_file));
 
 ?>
@@ -49,16 +46,18 @@ $config = json_decode(file_get_contents($config_file));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrace webu</title>
+    <title>Administrace webu Výborná DH</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h1 { text-align: center; color: #0056b3; }
+        body { font-family: sans-serif; background-color: #f4f4f4; color: #333; display: flex; justify-content: center; padding: 2rem 0; }
+        .container { background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h1, h2 { text-align: center; color: #03590c; }
+        h2 { margin-top: 2rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
         form div { margin-bottom: 1rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        input[type="text"], input[type="password"] { width: 100%; padding: 0.5rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="text"], input[type="password"], textarea { width: 100%; padding: 0.5rem; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-family: sans-serif; }
+        textarea { min-height: 80px; }
         input[type="checkbox"] { margin-right: 0.5rem; }
-        button { width: 100%; padding: 0.7rem; background-color: #0056b3; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
+        button { width: 100%; padding: 0.7rem; background-color: #03590c; color: white; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
         button:hover { background-color: #004494; }
         .logout { text-align: center; margin-top: 1rem; }
         .logout a { color: #555; text-decoration: none; }
@@ -66,41 +65,47 @@ $config = json_decode(file_get_contents($config_file));
 </head>
 <body>
     <div class="container">
-        <h1>Administrace webu</h1>
+        <h1>Administrace webu Výborná DH</h1>
         <?= $zprava ?>
 
         <?php if (!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']): ?>
             <form method="POST">
-                <div>
-                    <label for="heslo">Heslo:</label>
-                    <input type="password" id="heslo" name="heslo" required>
-                </div>
+                <div><label for="heslo">Heslo:</label><input type="password" id="heslo" name="heslo" required></div>
                 <button type="submit">Přihlásit se</button>
+                
             </form>
         <?php else: ?>
             <form method="POST">
-                <div>
-                    <input type="checkbox" id="prijimame" name="prijimame" <?php if ($config->prijimameNovePacienty) echo 'checked'; ?>>
-                    <label for="prijimame">Přijímám nové pacienty</label>
-                </div>
+                <h2>Nastavení zobrazení</h2>
+                <div><input type="checkbox" id="prijimame" name="prijimame" <?php if ($config->prijimameNovePacienty) echo 'checked'; ?>><label for="prijimame">Přijímám nové pacienty</label></div>
                 <hr>
+                <div><input type="checkbox" id="zobrazitOznameni" name="zobrazitOznameni" <?php if ($config->zobrazitOznameni) echo 'checked'; ?>><label for="zobrazitOznameni">Zobrazit speciální oznámení (dovolená, svátky...)</label></div>
                 <div>
-                    <input type="checkbox" id="dovolena" name="dovolena" <?php if ($config->jeDovolena) echo 'checked'; ?>>
-                    <label for="dovolena">Zobrazit informaci o dovolené</label>
+                    <label for="oznameniText">Text oznámení:</label>
+                    <textarea id="oznameniText" name="oznameniText"><?= htmlspecialchars($config->oznameniText) ?></textarea>
                 </div>
-                <div>
-                    <label for="dovolenaOd">Dovolená od:</label>
-                    <input type="text" id="dovolenaOd" name="dovolenaOd" value="<?= htmlspecialchars($config->dovolenáOd) ?>">
-                </div>
-                <div>
-                    <label for="dovolenaDo">Dovolená do:</label>
-                    <input type="text" id="dovolenaDo" name="dovolenaDo" value="<?= htmlspecialchars($config->dovolenáDo) ?>">
-                </div>
-                <button type="submit" name="ulozit">Uložit nastavení</button>
+
+                <h2>Otevírací doba</h2>
+                <div><label>Pondělí:</label><input type="text" name="oteviraciDoba[po]" value="<?= htmlspecialchars($config->oteviraciDoba->po) ?>"></div>
+                <div><label>Úterý:</label><input type="text" name="oteviraciDoba[ut]" value="<?= htmlspecialchars($config->oteviraciDoba->ut) ?>"></div>
+                <div><label>Středa:</label><input type="text" name="oteviraciDoba[st]" value="<?= htmlspecialchars($config->oteviraciDoba->st) ?>"></div>
+                <div><label>Čtvrtek:</label><input type="text" name="oteviraciDoba[ct]" value="<?= htmlspecialchars($config->oteviraciDoba->ct) ?>"></div>
+                <div><label>Pátek:</label><input type="text" name="oteviraciDoba[pa]" value="<?= htmlspecialchars($config->oteviraciDoba->pa) ?>"></div>
+                <div><label>Sobota:</label><input type="text" name="oteviraciDoba[so]" value="<?= htmlspecialchars($config->oteviraciDoba->so) ?>"></div>
+                <div><label>Neděle:</label><input type="text" name="oteviraciDoba[ne]" value="<?= htmlspecialchars($config->oteviraciDoba->ne) ?>"></div>
+                
+                <h2>Ceník</h2>
+                <h3>Dospělí</h3>
+                <div><label>Vstupní návštěva:</label><input type="text" name="cenik[dospeli][vstupni]" value="<?= htmlspecialchars($config->cenik->dospeli->vstupni) ?>"></div>
+                <div><label>Kontrolní návštěva:</label><input type="text" name="cenik[dospeli][kontrolni]" value="<?= htmlspecialchars($config->cenik->dospeli->kontrolni) ?>"></div>
+                <h3>Děti</h3>
+                <div><label>Děti do 6 let:</label><input type="text" name="cenik[deti][do6let]" value="<?= htmlspecialchars($config->cenik->deti->do6let) ?>"></div>
+                <div><label>Děti do 15 let:</label><input type="text" name="cenik[deti][do15let]" value="<?= htmlspecialchars($config->cenik->deti->do15let) ?>"></div>
+                <div><label>Zoubková prohlídka nanečisto:</label><input type="text" name="cenik[deti][nanecisto]" value="<?= htmlspecialchars($config->cenik->deti->nanecisto) ?>"></div>
+
+                <button type="submit" name="ulozit">Uložit všechna nastavení</button>
             </form>
-            <div class="logout">
-                <a href="?logout=1">Odhlásit se</a>
-            </div>
+            <div class="logout"><a href="?logout=1">Odhlásit se</a></div>
         <?php endif; ?>
     </div>
 </body>
